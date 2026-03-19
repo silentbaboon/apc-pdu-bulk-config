@@ -12,7 +12,8 @@ For each PDU, this script:
 All other settings in the PDU's config are left completely untouched.
 
 Requirements:
-    pip install paramiko
+    - Python 3.x (no pip installs needed — all standard library)
+    - expect (system package): dnf install expect -y
 
 Usage:
     python3 deploy_apc_config.py
