@@ -1,0 +1,7 @@
+# APC PDU Bulk Config - PDU IP List
+# Add one IP address per line
+# Lines starting with # are ignored
+#
+# Example:
+# 192.168.1.10
+# 192.168.1.11
