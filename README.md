@@ -12,12 +12,10 @@ Automates the following across a list of PDUs in a single run:
 
 ## Requirements
 
-**Python 3.x**
-```bash
-pip install paramiko
-```
+**No pip installs required** — the Python script uses only the standard library.
 
-**Expect**
+The only external dependency is `expect`:
+
 ```bash
 # RHEL/Rocky/CentOS
 dnf install expect -y
@@ -42,9 +40,8 @@ git clone https://github.com/silentbaboon/apc-pdu-bulk-config.git
 cd apc-pdu-bulk-config
 ```
 
-2. Install dependencies:
+2. Install expect:
 ```bash
-pip install paramiko
 dnf install expect -y
 ```
 
@@ -65,14 +62,14 @@ PDU_NEW_PASSWORD = "yourPassword"   # New password to set on all PDUs
 ```python
 ENFORCED_SETTINGS = {
     "SystemID": {
-        "Location": "YourLocation",
-        "Contact": "YourContact",
+        "Location": "YOUR_LOCATION",  # e.g. "Server Room A"
+        "Contact":  "YOUR_CONTACT",   # e.g. "Not Set"
     },
     "NetworkSNMP": {
-        "Access": "enabled",
-        "AccessControl1Community": "public",
+        "Access":                   "enabled",
+        "AccessControl1Community":  "YOUR_COMMUNITY_STRING",  # e.g. "public"
         "AccessControl1AccessType": "Read",
-        "AccessControl1NMS": "0.0.0.0",
+        "AccessControl1NMS":        "0.0.0.0",
     },
 }
 ```
