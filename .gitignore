@@ -1,0 +1,18 @@
+# PDU list may contain sensitive IP addresses
+pdu_list.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.env
+venv/
+
+# Downloaded configs from PDUs
+config.ini
+
+# OS
+.DS_Store
+Thumbs.db
