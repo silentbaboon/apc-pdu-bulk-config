@@ -1,0 +1,49 @@
+#!/usr/bin/expect -f
+# Usage: ./apc_setup.exp <ip> <current_password> <new_password> <location> <contact>
+
+set ipaddr        [lindex $argv 0]
+set password      [lindex $argv 1]
+set new_password  [lindex $argv 2]
+set location      [lindex $argv 3]
+set contact       [lindex $argv 4]
+set timeout 30
+
+# Connect via SSH
+spawn ssh -o StrictHostKeyChecking=no \
+          -o KexAlgorithms=ecdh-sha2-nistp256,diffie-hellman-group14-sha256 \
+          -o Ciphers=aes128-ctr,aes256-ctr,aes128-cbc,aes256-cbc \
+          -o HostKeyAlgorithms=ecdsa-sha2-nistp256 \
+          apc@$ipaddr
+
+# Wait for SSH password prompt and send it
+expect "*?assword*"
+send "$password\r"
+
+# After SSH login, handle either forced password change or normal prompt
+expect {
+    "Enter current password:" {
+        send "$password\r"
+        expect "Enter new password:"
+        send "$new_password\r"
+        expect "Confirm new password:"
+        send "$new_password\r"
+        expect "apc>"
+    }
+    "apc>" {
+        # No password change required
+    }
+}
+
+# Set location and contact via CLI
+send "system -l \"$location\"\r"
+expect "apc>"
+send "system -c \"$contact\"\r"
+expect "apc>"
+
+# Enable FTP
+send "ftp -S enable\r"
+expect "apc>"
+
+# Reboot to apply all changes
+send "reboot -Y\r"
+expect eof
