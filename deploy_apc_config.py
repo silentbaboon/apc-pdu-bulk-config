@@ -34,7 +34,7 @@ from pathlib import Path
 PDU_LIST_FILE      = "pdu_list.txt"    # One IP address per line
 PDU_USERNAME       = "apc"             # NMC username
 PDU_PASSWORD       = "apc"             # Current/default password
-PDU_NEW_PASSWORD   = "YourNewPassword"     # New password to set on all PDUs
+PDU_NEW_PASSWORD   = "YourPassword"     # New password to set on all PDUs
 REMOTE_CONFIG_PATH = "config.ini"      # Path to config.ini on the PDU
 
 # Only these keys will be modified. Everything else in the PDU's
@@ -76,8 +76,11 @@ def run_expect(ip: str) -> str:
     if result.returncode != 0:
         raise RuntimeError(f"Expect script failed: {result.stderr.strip()}")
 
-    # If the expect script handled a password change, FTP password is new
-    if "Enter current password:" in result.stdout:
+    # Determine which password to use for FTP:
+    # - If first-login password change occurred, use new password
+    # - If logged in with new password directly (Permission denied on first try), use new password
+    # - Otherwise the default password worked, use that
+    if "Enter current password:" in result.stdout or "Permission denied" in result.stdout:
         return PDU_NEW_PASSWORD
     return PDU_PASSWORD
 
