@@ -8,19 +8,37 @@ set location      [lindex $argv 3]
 set contact       [lindex $argv 4]
 set timeout 30
 
-# Connect via SSH
 spawn ssh -o StrictHostKeyChecking=no \
           -o KexAlgorithms=ecdh-sha2-nistp256,diffie-hellman-group14-sha256 \
           -o Ciphers=aes128-ctr,aes256-ctr,aes128-cbc,aes256-cbc \
           -o HostKeyAlgorithms=ecdsa-sha2-nistp256 \
           apc@$ipaddr
 
-# Wait for SSH password prompt and send it
 expect "*?assword*"
 send "$password\r"
 
-# After SSH login, handle either forced password change or normal prompt
+# After first password attempt, handle three possible outcomes:
+# 1. Permission denied — password is already changed, try new_password
+# 2. Forced first-login password change prompt
+# 3. Normal apc> prompt — already logged in
 expect {
+    "Permission denied" {
+        expect "*?assword*"
+        send "$new_password\r"
+        expect {
+            "Enter current password:" {
+                send "$new_password\r"
+                expect "Enter new password:"
+                send "$new_password\r"
+                expect "Confirm new password:"
+                send "$new_password\r"
+                expect "apc>"
+            }
+            "apc>" {
+                # Logged in with new_password, no change needed
+            }
+        }
+    }
     "Enter current password:" {
         send "$password\r"
         expect "Enter new password:"
@@ -30,7 +48,7 @@ expect {
         expect "apc>"
     }
     "apc>" {
-        # No password change required
+        # Logged in with password, no change needed
     }
 }
 
